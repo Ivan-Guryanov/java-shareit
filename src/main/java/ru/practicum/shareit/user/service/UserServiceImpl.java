@@ -1,11 +1,11 @@
 package ru.practicum.shareit.user.service;
 
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ConflictException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.storage.UserStorage;
@@ -23,8 +23,12 @@ public class UserServiceImpl implements UserService{
     }
 
     public UserDto createUser(User user) {
+        var violations = validator.validate(user);
+        if (!violations.isEmpty()) {
+            throw new ValidationException("Не корректный email - " + user.getEmail());
+        }
         if (existsByEmail(user.getEmail())) {
-            throw new ConflictException("Email " + user.getEmail() + " уже занят");
+            throw new ConflictException("Email уже занят");
         }
         return userStorage.createUser(user);
     }
@@ -33,7 +37,7 @@ public class UserServiceImpl implements UserService{
         UserDto user = userStorage.getUsetById(id);
         newUser.setId(id);
         if (existsByEmail(newUser.getEmail())) {
-            throw new ConflictException("Email " + newUser.getEmail() + " уже занят");
+            throw new ConflictException("Email уже занят");
         }
         if (newUser.getName() == null) {
             newUser.setName(user.getName());
