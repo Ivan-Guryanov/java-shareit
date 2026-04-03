@@ -14,7 +14,7 @@ import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     private  final UserStorage userStorage;
     private final Validator validator;
 

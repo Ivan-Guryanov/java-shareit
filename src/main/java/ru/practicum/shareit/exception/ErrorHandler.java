@@ -58,7 +58,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(ConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> ConflictException(ConflictException e) {
+    public Map<String, String> conflictException(ConflictException e) {
         log.error(e.getMessage());
         return Map.of("error", e.getMessage());
     }

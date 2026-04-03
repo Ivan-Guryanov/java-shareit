@@ -1,23 +1,19 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.NonNull;
+import lombok.*;
 
 /**
  * TODO Sprint add-controllers.
  */
+@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemDto {
-    @NonNull
     long id;
-
-    @NonNull
     String name;
-
     String description;
-
-    String available;
-
-    @NonNull
+    Boolean available;
     long owner;
-
     String request;
 }

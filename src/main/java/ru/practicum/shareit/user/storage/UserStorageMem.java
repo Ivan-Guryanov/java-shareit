@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user.storage;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
@@ -44,6 +44,9 @@ public class UserStorageMem implements UserStorage {
 
     @Override
     public UserDto getUsetById(Long id) {
+        if (users.get(id) == null) {
+            throw new NotFoundException("Такого пользователя нет");
+        }
         return UserDtoMapper.mapToDto(users.get(id));
     }
 }
