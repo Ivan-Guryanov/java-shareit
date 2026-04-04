@@ -9,9 +9,6 @@ import ru.practicum.shareit.item.servise.ItemServise;
 
 import java.util.Collection;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -20,7 +17,7 @@ public class ItemController {
     private final ItemServise itemServise;
 
     @PostMapping
-    public ItemDto createItem(@RequestBody Item item,
+    public ItemDto createItem(@RequestBody ItemDto item,
                               @RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId) {
         log.info("Получен запрос на добавление вещи");
         if (userId == null) {
@@ -32,7 +29,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{id}")
-    public ItemDto updateItem(@RequestBody Item item,
+    public ItemDto updateItem(@RequestBody ItemDto item,
                               @RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
                               @PathVariable Long id) {
         log.info("Получен запрос на оюновление вещи");

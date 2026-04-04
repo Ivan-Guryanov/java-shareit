@@ -12,7 +12,7 @@ import java.util.Map;
 @Component
 public class ItemStorageMem implements ItemStorage {
     private final Map<Long, Item> items = new HashMap<>();
-    long count = 0;
+    private long count = 0;
 
     public Collection<Item> findAllItem() {
         return new ArrayList<>(items.values());

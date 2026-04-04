@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
-/**
- * TODO Sprint add-controllers.
- */
+
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
@@ -17,7 +15,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto createUser(@RequestBody User user) {
+    public UserDto createUser(@RequestBody UserDto user) {
         log.info("Получен запрос на добавление пользователя");
         UserDto createUser = userService.createUser(user);
         log.info("Пользователь добавлен с id {}", createUser.getId());
@@ -25,7 +23,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserDto updateUser(@PathVariable Long id, @RequestBody User newUser) {
+    public UserDto updateUser(@PathVariable Long id, @RequestBody UserDto newUser) {
         log.info("Получен запрос на обновление пользователя с id {}", id);
         UserDto updateUser = userService.updateUser(id, newUser);
         log.info("Пользователь с id {} успешно обновлен", updateUser.getId());

@@ -14,27 +14,25 @@ import java.util.stream.Collectors;
 @Component
 public class UserStorageMem implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
-    long count = 0;
+    private long count = 0;
 
     @Override
-    public Collection<UserDto> findAllUser() {
-        return users.values().stream()
-                .map(UserDtoMapper::mapToDto)
-                .collect(Collectors.toList());
+    public Collection<User> findAllUser() {
+        return users.values();
     }
 
     @Override
-    public UserDto createUser(User user) {
+    public User createUser(User user) {
         count++;
         user.setId(count);
         users.put(count, user);
-        return UserDtoMapper.mapToDto(user);
+        return user;
     }
 
     @Override
-    public UserDto updateUser(User newUser) {
+    public User updateUser(User newUser) {
         users.put(newUser.getId(), newUser);
-        return UserDtoMapper.mapToDto(newUser);
+        return newUser;
     }
 
     @Override
@@ -43,10 +41,10 @@ public class UserStorageMem implements UserStorage {
     }
 
     @Override
-    public UserDto getUsetById(Long id) {
+    public User getUsetById(Long id) {
         if (users.get(id) == null) {
             throw new NotFoundException("Такого пользователя нет");
         }
-        return UserDtoMapper.mapToDto(users.get(id));
+        return users.get(id);
     }
 }

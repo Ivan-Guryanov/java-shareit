@@ -2,27 +2,26 @@ package ru.practicum.shareit.item;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
+@Builder
 public class Item {
 
-    long id;
+    private long id;
 
     @NotBlank(message = "Не указано название товара")
-    String name;
+    private String name;
 
     @NotBlank(message = "Не указано описание товара")
-    String description;
+    private String description;
 
     @NotNull(message = "Не указан статус вещи")
-    Boolean available;
+    private Boolean available;
 
     @NotNull(message = "Владелец должен быть указан")
-    Long owner;
+    private Long owner;
 
-    String request;
+    private String request;
 }

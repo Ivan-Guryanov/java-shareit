@@ -2,20 +2,19 @@ package ru.practicum.shareit.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Data;
 
-/**
- * TODO Sprint add-controllers.
- */
+@Builder
 @Data
 public class User {
 
-    long id;
+    private long id;
 
-    String name;
+    private String name;
 
     @NotBlank(message = "Email не может быть пустым")
     @Email(message = "Введен не имейл")
-    String email;
+    private String email;
 
 }

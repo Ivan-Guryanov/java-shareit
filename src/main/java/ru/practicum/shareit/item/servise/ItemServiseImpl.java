@@ -24,26 +24,29 @@ public class ItemServiseImpl implements ItemServise {
     private final Validator validator;
 
     @Override
-    public ItemDto createItem(Long userId, Item item) {
+    public ItemDto createItem(Long userId, ItemDto item) {
         item.setOwner(userId);
-        var violations = validator.validate(item);
+        Item newItem = ItemDtoMapper.mapToItem(item);
+        var violations = validator.validate(newItem);
         if (!violations.isEmpty()) {
             throw new ValidationException(violations.iterator().next().getMessage());
         }
         userStorage.getUsetById(userId); //проверка существования пользователя
 
-        Item createItem = itemStorage.createItem(item);
+        Item createItem = itemStorage.createItem(newItem);
         return ItemDtoMapper.mapToDto(createItem);
     }
 
     @Override
-    public ItemDto updateItem(Long id, Long userId, Item item) {
+    public ItemDto updateItem(Long id, Long userId, ItemDto item) {
         item.setId(id);
         item.setOwner(userId);
 
+        Item newItem = ItemDtoMapper.mapToItem(item);
+
         userStorage.getUsetById(userId); //проверка существования пользователя
 
-        Item updateItem = itemStorage.updateItem(item);
+        Item updateItem = itemStorage.updateItem(newItem);
         return ItemDtoMapper.mapToDto(updateItem);
     }
 
@@ -63,11 +66,13 @@ public class ItemServiseImpl implements ItemServise {
 
     @Override
     public Collection<ItemDto> itemSearch(String text) {
+        String textSearch = text.toLowerCase();
+
         if (text.equals("")) {
             return new ArrayList<>();
         }
         Collection<ItemDto> itemSearch = itemStorage.findAllItem().stream()
-                .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()))
+                .filter(item -> item.getName().toLowerCase().contains(textSearch))
                 .filter(item -> Boolean.TRUE.equals(item.getAvailable()))
                 .map(ItemDtoMapper::mapToDto)
                 .collect(Collectors.toCollection(ArrayList::new));
