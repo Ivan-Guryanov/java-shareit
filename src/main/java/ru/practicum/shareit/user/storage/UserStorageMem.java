@@ -3,13 +3,10 @@ package ru.practicum.shareit.user.storage;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserDtoMapper;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 public class UserStorageMem implements UserStorage {
