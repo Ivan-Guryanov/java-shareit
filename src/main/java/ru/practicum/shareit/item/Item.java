@@ -1,27 +1,32 @@
 package ru.practicum.shareit.item;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@Entity
+@Table(name = "items")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Item {
 
-    private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @NotBlank(message = "Не указано название товара")
     private String name;
 
-    @NotBlank(message = "Не указано описание товара")
     private String description;
 
-    @NotNull(message = "Не указан статус вещи")
     private Boolean available;
 
-    @NotNull(message = "Владелец должен быть указан")
+    @Column(name = "owner_id")
     private Long owner;
 
+    @Column(name = "request_id")
     private String request;
 }

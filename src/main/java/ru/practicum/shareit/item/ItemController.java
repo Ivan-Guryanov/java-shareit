@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithCommentsDto;
 import ru.practicum.shareit.item.servise.ItemServise;
+import ru.practicum.shareit.item.dto.CommentDto;
 
 import java.util.Collection;
 
@@ -14,7 +16,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemController {
-    private final ItemServise itemServise;
+    private final ItemServise itemService;
 
     @PostMapping
     public ItemDto createItem(@RequestBody ItemDto item,
@@ -23,7 +25,7 @@ public class ItemController {
         if (userId == null) {
             throw new ValidationException("Не указан владелец вещи");
         }
-        ItemDto createItem = itemServise.createItem(userId, item);
+        ItemDto createItem = itemService.createItem(userId, item);
         log.info("Вещь добавлена с id {}", createItem.getId());
         return createItem;
     }
@@ -36,19 +38,19 @@ public class ItemController {
         if (userId == null) {
             throw new ValidationException("Не указан владелец вещи");
         }
-        ItemDto updateItem = itemServise.updateItem(id, userId, item);
+        ItemDto updateItem = itemService.updateItem(id, userId, item);
         log.info("Вещь с id {} оюновлена", updateItem.getId());
         return updateItem;
     }
 
     @GetMapping("/{id}")
-    public ItemDto getItemById(@PathVariable  Long id,
-                               @RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId) {
+    public ItemWithCommentsDto getItemById(@PathVariable  Long id,
+                                           @RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId) {
         log.info("Получен запрос на получение вещи с id {}", id);
         if (userId == null) {
             throw new ValidationException("Не указан пользователь выполнивший запрос");
         }
-        ItemDto getItemById = itemServise.getItemById(id);
+        ItemWithCommentsDto getItemById = itemService.getItemWithCommentsById(id);
         log.info("Вещи с id {} успешно получен", getItemById.getId());
         return getItemById;
     }
@@ -59,7 +61,7 @@ public class ItemController {
         if (userId == null) {
             throw new ValidationException("Не указан владелец вещи");
         }
-        Collection<ItemDto> userItems = itemServise.getAllItemByUserID(userId);
+        Collection<ItemDto> userItems = itemService.getAllItemByUserID(userId);
         log.info("Список вещей пользователя id {} успешно получен", userId);
         return userItems;
     }
@@ -71,8 +73,22 @@ public class ItemController {
         if (userId == null) {
             throw new ValidationException("Не указан пользователь выполнивший запрос");
         }
-        Collection<ItemDto> itemSearch = itemServise.itemSearch(text);
+        Collection<ItemDto> itemSearch = itemService.itemSearch(text);
         log.info("По условию \"{}\" найдено {} вещей", text, itemSearch.size());
         return itemSearch;
     }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@RequestBody CommentDto comment,
+                                    @RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
+                                    @PathVariable Long itemId) {
+        log.info("Получен запрос от пользователя id {} на добавления коментария к вещи id {}", userId, itemId);
+        if (userId == null) {
+            throw new ValidationException("Не указан пользователь добавляющий комментарий");
+        }
+        CommentDto commentDto = itemService.createComment(userId, itemId, comment);
+        log.info("Комментарий к вещи id {} успешно добавлен пользователем id {}", itemId, userId);
+        return commentDto;
+    }
+
 }

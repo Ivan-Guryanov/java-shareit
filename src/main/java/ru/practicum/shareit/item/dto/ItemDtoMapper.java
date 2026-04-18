@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.Item;
 
+import java.util.Collection;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemDtoMapper {
 
@@ -26,6 +28,18 @@ public class ItemDtoMapper {
                 .available(item.getAvailable())
                 .owner(item.getOwner())
                 .request(item.getRequest())
+                .build();
+    }
+
+    public static  ItemWithCommentsDto mapToItemWithCommentsDto(Item item, Collection<CommentDto> comments) {
+        return ItemWithCommentsDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .lastBooking(null)
+                .nextBooking(null)
+                .comments(comments)
                 .build();
     }
 }
