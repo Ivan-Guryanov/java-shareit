@@ -18,6 +18,7 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,7 +86,8 @@ public class BuokingServiceIlmp implements BookingService {
     public BookingDtoCreate findBookingById(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).get();
         BookingDtoCreate bookingDtoCreate = updateDtoCreate(booking);
-        if (bookingDtoCreate.getItem().getOwner() != userId && bookingDtoCreate.getBooker().getId() != userId) {
+        if (!Objects.equals(bookingDtoCreate.getItem().getOwner(), userId) &&
+                !Objects.equals(bookingDtoCreate.getBooker().getId(), userId)) {
             throw new ValidationException("Пользователь не является владельцем вещи или бронирующим");
         }
         return bookingDtoCreate;

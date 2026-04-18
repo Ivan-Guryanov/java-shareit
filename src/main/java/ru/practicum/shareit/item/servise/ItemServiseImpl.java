@@ -110,7 +110,7 @@ public class ItemServiseImpl implements ItemServise {
         List<Booking> bookers = bookingRepository.findAllByItemId(itemId);
 
         ArrayList<Booking> bookersApproved = bookers.stream()
-                .filter(booking -> booking.getBooker() == userId)
+                .filter(booking -> booking.getBooker().equals(userId))
                 .filter(booking -> booking.getStatus() == BookingStatus.APPROVED)
                 .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                 .collect(Collectors.toCollection(ArrayList::new));
