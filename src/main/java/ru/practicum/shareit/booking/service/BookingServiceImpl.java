@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -24,12 +25,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class BuokingServiceIlmp implements BookingService {
+public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ItemServise itemServise;
 
-    @Override
+    @Transactional
     public BookingDtoCreate createBooking(Long userId, BookingDto bookingDto) {
         ItemDto item = itemServise.getItemById(bookingDto.getItemId());  //проверка наличия вещи
         userService.getUsetById(userId); //проверка существования пользователя
@@ -63,7 +64,7 @@ public class BuokingServiceIlmp implements BookingService {
         return updateDtoCreate(createBooking);
     }
 
-    @Override
+    @Transactional
     public BookingDtoCreate bookingApproval(Long userId, Long bookingId, Boolean approved) {
         Booking booking = bookingRepository.findById(bookingId).get();
         BookingDtoCreate bookingDtoCreate = updateDtoCreate(booking);
@@ -82,7 +83,7 @@ public class BuokingServiceIlmp implements BookingService {
         return bookingDtoCreate;
     }
 
-    @Override
+    @Transactional
     public BookingDtoCreate findBookingById(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).get();
         BookingDtoCreate bookingDtoCreate = updateDtoCreate(booking);
@@ -94,20 +95,21 @@ public class BuokingServiceIlmp implements BookingService {
     }
 
     // Тут логика должна быть сложней, но ТЗ этого не требует (ввести в BookingStatus - Передана, Не взята в срок, Не возвращена в срок)
-    @Override
+    @Transactional
     public Collection<BookingDtoCreate> findBookingByUser(Long userId, String state) {
         userService.getUsetById(userId); //проверка существования пользователя
         List<Booking> bookers = bookingRepository.findAllByBooker(userId);
         return filterListBookings(bookers, state);
     }
 
-    @Override
+    @Transactional
     public Collection<BookingDtoCreate> findBookingByOwner(Long userId, String state) {
         userService.getUsetById(userId); //проверка существования пользователя
         List<Booking> bookers = bookingRepository.findAllByOwnerId(userId);
         return filterListBookings(bookers, state);
     }
 
+    @Transactional
     private BookingDtoCreate updateDtoCreate(Booking booking) {
         ItemDto item = itemServise.getItemById(booking.getItemId());
         UserDto user = userService.getUsetById(booking.getBooker());

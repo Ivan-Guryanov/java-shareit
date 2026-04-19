@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.servise;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.storage.BookingRepository;
@@ -34,7 +35,7 @@ public class ItemServiseImpl implements ItemServise {
     private final UserRepository userRepository;
 
 
-    @Override
+    @Transactional
     public ItemDto createItem(Long userId, ItemDto item) {
         item.setOwner(userId);
         Item newItem = ItemDtoMapper.mapToItem(item);
@@ -45,7 +46,7 @@ public class ItemServiseImpl implements ItemServise {
         return ItemDtoMapper.mapToDto(createItem);
     }
 
-    @Override
+    @Transactional
     public ItemDto updateItem(Long id, Long userId, ItemDto item) {
         userService.getUsetById(userId); //проверка существования пользователя
         item.setId(id);
@@ -72,7 +73,7 @@ public class ItemServiseImpl implements ItemServise {
         return ItemDtoMapper.mapToDto(newItem);
     }
 
-    @Override
+    @Transactional
     public ItemDto getItemById(Long id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
@@ -80,7 +81,7 @@ public class ItemServiseImpl implements ItemServise {
         return ItemDtoMapper.mapToDto(item);
     }
 
-    @Override
+    @Transactional
     public Collection<ItemDto> getAllItemByUserID(Long userId) {
         Collection<ItemDto> userItems = itemRepository.findAll().stream()
                 .filter(item -> item.getOwner().equals(userId))
@@ -89,7 +90,7 @@ public class ItemServiseImpl implements ItemServise {
         return userItems;
     }
 
-    @Override
+    @Transactional
     public Collection<ItemDto> itemSearch(String text) {
         String textSearch = text.toLowerCase();
 
@@ -105,7 +106,7 @@ public class ItemServiseImpl implements ItemServise {
         return itemSearch;
     }
 
-    @Override
+    @Transactional
     public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
         List<Booking> bookers = bookingRepository.findAllByItemId(itemId);
 
@@ -132,7 +133,7 @@ public class ItemServiseImpl implements ItemServise {
         return CommentMapper.mapToDto(savedComment);
     }
 
-    @Override
+    @Transactional
     public ItemWithCommentsDto getItemWithCommentsById(Long id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + id + " не найдена"));
