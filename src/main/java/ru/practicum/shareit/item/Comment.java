@@ -1,11 +1,13 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.item;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.proxy.HibernateProxy;
+import ru.practicum.shareit.user.User;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
-
 
 @Builder
 @Getter
@@ -13,17 +15,27 @@ import java.util.Objects;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
-public class User {
+@Table(name = "comments")
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(name = "text")
+    private String text;
 
-    @Column(unique = true, nullable = false)
-    private String email;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id", nullable = false)
+    private Item item;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
+
+    @Column(name = "created", nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime created;
 
     @Override
     public final boolean equals(Object o) {
@@ -38,8 +50,8 @@ public class User {
                 .getPersistentClass()
                 : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        User user = (User) o;
-        return getId() != null && Objects.equals(getId(), user.getId());
+        Comment comment = (Comment) o;
+        return getId() != null && Objects.equals(getId(), comment.getId());
     }
 
     @Override

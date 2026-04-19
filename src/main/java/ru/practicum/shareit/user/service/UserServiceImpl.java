@@ -1,15 +1,15 @@
 package ru.practicum.shareit.user.service;
 
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ConflictException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -17,59 +17,60 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private  final UserStorage userStorage;
+    private  final UserRepository userRepository;
     private final Validator validator;
 
+    @Transactional
     public Collection<UserDto> findAllUser() {
-        return userStorage.findAllUser().stream()
+        return userRepository.findAll().stream()
                 .map(UserDtoMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public UserDto createUser(UserDto user) {
-
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            throw new ConflictException("Емейл уже используется");
+        }
         User newUser = UserDtoMapper.mapToUser(user);
-        var violations = validator.validate(newUser);
-        if (!violations.isEmpty()) {
-            throw new ValidationException("Не корректный email - " + user.getEmail());
-        }
-        if (existsByEmail(user.getEmail())) {
-            throw new ConflictException("Email уже занят");
-        }
-        return UserDtoMapper.mapToDto(userStorage.createUser(newUser));
+        User savedUser = userRepository.save(newUser);
+        return UserDtoMapper.mapToDto(savedUser);
     }
 
+    @Transactional
     public  UserDto updateUser(Long id, UserDto newUser) {
-        User user = userStorage.getUsetById(id);
-        newUser.setId(id);
-        if (existsByEmail(newUser.getEmail())) {
-            throw new ConflictException("Email уже занят");
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
+        if (userRepository.findByEmail(newUser.getEmail()) != null) {
+            throw new ConflictException("Емейл уже используется");
         }
+        newUser.setId(id);
+
         if (newUser.getName() == null) {
             newUser.setName(user.getName());
         }
         if (newUser.getEmail() == null) {
             newUser.setEmail(user.getEmail());
         }
-        var violations = validator.validate(newUser);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
+
         User updateUser = UserDtoMapper.mapToUser(newUser);
 
-        return UserDtoMapper.mapToDto(userStorage.updateUser(updateUser));
+        return UserDtoMapper.mapToDto(userRepository.save(updateUser));
     }
 
+    @Transactional
     public void deleteUser(Long id) {
-        userStorage.deleteUser(id);
+        userRepository.deleteById(id);
     }
 
+    @Transactional
     public UserDto getUsetById(Long id) {
-        return  UserDtoMapper.mapToDto(userStorage.getUsetById(id));
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        return  UserDtoMapper.mapToDto(user);
     }
 
-    public boolean existsByEmail(String email) {
-        return userStorage.findAllUser().stream()
-                .anyMatch(userDto -> userDto.getEmail().equalsIgnoreCase(email));
-    }
 }
