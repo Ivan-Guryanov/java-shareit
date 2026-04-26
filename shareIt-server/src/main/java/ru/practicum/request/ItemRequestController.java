@@ -22,6 +22,5 @@ public class ItemRequestController {
         log.info("Запрос на добалвение запроса на вещь от пользователя id {} " +
                 "добавлен с id {}", createItemRequest.getRequestorId(), createItemRequest.getId());
         return createItemRequest;
-
     }
 }
