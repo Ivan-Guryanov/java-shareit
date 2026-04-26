@@ -9,15 +9,13 @@ import ru.practicum.request.dto.ItemRequestDto;
 import ru.practicum.request.dto.ItemRequestMapper;
 import ru.practicum.request.storage.ItemRequestRepository;
 import ru.practicum.user.User;
-import ru.practicum.user.service.UserService;
 import ru.practicum.user.storage.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ItemRequestServiceImpl implements ItemRequestService{
+public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
-    private final UserService userService;
     private final UserRepository userRepository;
 
     public ItemRequestDto createItemRequest(ItemRequestDto itemRequestDto, Long requestorId) {
