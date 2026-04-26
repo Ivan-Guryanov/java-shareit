@@ -1,11 +1,11 @@
 -- ============================================
 -- 1. ОЧИСТКА: Удаляем таблицы в правильном порядке
 -- ============================================
---DROP TABLE IF EXISTS users CASCADE;
---DROP TABLE IF EXISTS items CASCADE;
---DROP TABLE IF EXISTS bookings CASCADE;
---DROP TABLE IF EXISTS requests CASCADE;
---DROP TABLE IF EXISTS comments CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS items CASCADE;
+DROP TABLE IF EXISTS bookings CASCADE;
+DROP TABLE IF EXISTS requests CASCADE;
+DROP TABLE IF EXISTS comments CASCADE;
 
 -- ============================================
 -- 2. СОЗДАНИЕ ТАБЛИЦ
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS items (
     description VARCHAR(512) NOT NULL,
     available BOOLEAN NOT NULL,
     owner_id BIGINT NOT NULL,
-    request_id VARCHAR(255),
+    request_id BIGINT,
     CONSTRAINT pk_item PRIMARY KEY (id),
     CONSTRAINT fk_items_to_users FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT name_not_empty CHECK (TRIM(name) <> '')

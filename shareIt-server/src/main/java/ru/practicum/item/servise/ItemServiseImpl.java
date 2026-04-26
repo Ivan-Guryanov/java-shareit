@@ -41,7 +41,6 @@ public class ItemServiseImpl implements ItemServise {
         Item newItem = ItemDtoMapper.mapToItem(item);
 
         userService.getUsetById(userId); //проверка существования пользователя
-
         Item createItem = itemRepository.save(newItem);
         return ItemDtoMapper.mapToDto(createItem);
     }
@@ -64,8 +63,8 @@ public class ItemServiseImpl implements ItemServise {
         if (item.getAvailable() == null) {
             item.setAvailable(oldItem.getAvailable());
         }
-        if (item.getRequest() == null) {
-            item.setRequest(oldItem.getRequest());
+        if (item.getRequestId() == null) {
+            item.setRequestId(oldItem.getRequestId());
         }
 
         Item newItem = ItemDtoMapper.mapToItem(item);
