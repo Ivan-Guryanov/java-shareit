@@ -11,7 +11,6 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.item.Comment;
 import ru.practicum.item.Item;
-import practicum.item.dto.*;
 import ru.practicum.item.dto.*;
 import ru.practicum.item.storage.CommentRepository;
 import ru.practicum.item.storage.ItemRepository;
