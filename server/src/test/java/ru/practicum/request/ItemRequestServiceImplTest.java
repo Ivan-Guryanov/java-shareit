@@ -24,9 +24,13 @@ import static org.hamcrest.Matchers.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @TestPropertySource(properties = {
-        "spring.datasource.url=jdbc:postgresql://localhost:5432/shareit",
-        "spring.datasource.username=shareit",
-        "spring.datasource.password=shareit",
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.datasource.url=jdbc:h2:mem:shareit;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
+        "spring.jpa.hibernate.ddl-auto=update",
+        "spring.sql.init.mode=never",
+        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect"
 })
 class ItemRequestServiceImplTest {
 
