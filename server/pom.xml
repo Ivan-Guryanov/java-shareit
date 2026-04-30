@@ -88,9 +88,9 @@
 						</systemPropertyVariables>
 					</configuration>
 				</plugin>
-        </plugins>
-        <pluginManagement>
-            <plugins>
+<!--        </plugins>-->
+<!--        <pluginManagement>-->
+<!--            <plugins>-->
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
 					<artifactId>spotbugs-maven-plugin</artifactId>
@@ -176,7 +176,7 @@
 					</executions>
 				</plugin>
 			</plugins>
-		</pluginManagement>
+<!--		</pluginManagement>-->
 	</build>
 	<profiles>
 		<profile>
@@ -191,5 +191,4 @@
 			</build>
 		</profile>
 	</profiles>
-
 </project>

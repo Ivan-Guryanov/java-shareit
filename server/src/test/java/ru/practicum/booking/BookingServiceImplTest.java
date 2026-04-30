@@ -1,4 +1,4 @@
-package ru.practicum.booking.service;
+package ru.practicum.booking;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.booking.Booking;
-import ru.practicum.booking.BookingStatus;
 import ru.practicum.booking.dto.BookingDto;
 import ru.practicum.booking.dto.BookingDtoCreate;
+import ru.practicum.booking.service.BookingService;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.item.Item;
 import ru.practicum.user.User;
 
@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -128,6 +129,148 @@ class BookingServiceImplTest {
         assertThat(result.getId(), equalTo(booking.getId()));
         assertThat(result.getItem().getName(), equalTo("Инструмент"));
     }
+
+    @Test
+    @DisplayName("Сервис(интеграционный тест) - создание бронирования: ошибка, если начало бронирования null")
+    void createWithStartNull() {
+        // given
+        User owner = makeUser("owner@mail.com", "Owner");
+        User booker = makeUser("booker@mail.com", "Booker");
+        em.persist(owner);
+        em.persist(booker);
+
+        Item item = makeItem("Дрель", owner.getId());
+        em.persist(item);
+        em.flush();
+
+        BookingDto dto = BookingDto.builder()
+                .itemId(item.getId())
+                .start(null)
+                .end(LocalDateTime.now().plusDays(1))
+                .build();
+
+        // when & then
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(booker.getId(), dto));
+    }
+
+    @Test
+    @DisplayName("Сервис(интеграционный тест) - создание бронирования: ошибка, если конец null")
+    void createWithEndNull() {
+        // given
+        User owner = makeUser("owner@mail.com", "Owner");
+        User booker = makeUser("booker@mail.com", "Booker");
+        em.persist(owner);
+        em.persist(booker);
+
+        Item item = makeItem("Дрель", owner.getId());
+        em.persist(item);
+        em.flush();
+
+        BookingDto dto = BookingDto.builder()
+                .itemId(item.getId())
+                .start(LocalDateTime.now().plusDays(1))
+                .end(null)
+                .build();
+
+        // when & then
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(booker.getId(), dto));
+    }
+
+    @Test
+    @DisplayName("Сервис(интеграционный тест) - создание бронирования: ошибка, если начало в прошлом")
+    void createWithPastStart() {
+        // given
+        User owner = makeUser("owner@mail.com", "Owner");
+        User booker = makeUser("booker@mail.com", "Booker");
+        em.persist(owner);
+        em.persist(booker);
+
+        Item item = makeItem("Дрель", owner.getId());
+        em.persist(item);
+        em.flush();
+
+        BookingDto dto = BookingDto.builder()
+                .itemId(item.getId())
+                .start(LocalDateTime.now().minusDays(1))
+                .end(LocalDateTime.now().plusDays(1))
+                .build();
+
+        // when & then
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(booker.getId(), dto));
+    }
+
+    @Test
+    @DisplayName("Сервис(интеграционный тест) - создание бронирования: ошибка, если конец раньше старта")
+    void createWithEndBeforeStart() {
+        // given
+        User owner = makeUser("owner@mail.com", "Owner");
+        User booker = makeUser("booker@mail.com", "Booker");
+        em.persist(owner);
+        em.persist(booker);
+
+        Item item = makeItem("Дрель", owner.getId());
+        em.persist(item);
+        em.flush();
+
+        BookingDto dto = BookingDto.builder()
+                .itemId(item.getId())
+                .start(LocalDateTime.now().plusDays(2))
+                .end(LocalDateTime.now().plusDays(1))
+                .build();
+
+        // when & then
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(booker.getId(), dto));
+    }
+
+    @Test
+    @DisplayName("Сервис(интеграционный тест) - создание бронирования: ошибка, если старт и конец совпадают")
+    void createWithSameDates() {
+        // given
+        User owner = makeUser("owner@mail.com", "Owner");
+        User booker = makeUser("booker@mail.com", "Booker");
+        em.persist(owner);
+        em.persist(booker);
+
+        Item item = makeItem("Дрель", owner.getId());
+        em.persist(item);
+        em.flush();
+
+        LocalDateTime sameDate = LocalDateTime.now().plusDays(1);
+        BookingDto dto = BookingDto.builder()
+                .itemId(item.getId())
+                .start(sameDate)
+                .end(sameDate)
+                .build();
+
+        // when & then
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(booker.getId(), dto));
+    }
+
+    @Test
+    @DisplayName("Сервис(интеграционный тест) - создание бронирования: ошибка, если вещь недоступна")
+    void createWithNotAvailableItem() {
+        // given
+        User owner = makeUser("owner@mail.com", "Owner");
+        User booker = makeUser("booker@mail.com", "Booker");
+        em.persist(owner);
+        em.persist(booker);
+
+        Item item = Item.builder()
+                .name("Сломанная дрель").description("Desc").available(false).owner(owner.getId())
+                .build();
+        em.persist(item);
+        em.flush();
+
+        BookingDto dto = BookingDto.builder()
+                .itemId(item.getId())
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .build();
+
+        // when & then
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(booker.getId(), dto));
+    }
+
 
     @Test
     @DisplayName("Сервис(интеграционный тест) - получение бронирований пользователя по условию")
