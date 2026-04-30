@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.exception.ConflictException;
+import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.dto.UserDtoMapper;
 import ru.practicum.user.service.UserService;
@@ -20,6 +22,7 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -132,7 +135,7 @@ class UserServiceImplTest {
         Long userId = 99999L;
 
         // when & then
-        org.junit.jupiter.api.Assertions.assertThrows(ru.practicum.exception.NotFoundException.class, () -> {
+        assertThrows(ru.practicum.exception.NotFoundException.class, () -> {
             service.getUsetById(userId);
         });
     }
@@ -153,6 +156,67 @@ class UserServiceImplTest {
         User deletedUser = em.find(User.class, userId);
         assertThat(deletedUser, nullValue());
     }
+
+    @Test
+    @DisplayName("Сервис(интеграционный тест) - создание пользователя ошибка: емаил занят")
+    void createUser_ShouldThrowConflict() {
+        // given
+        UserDto existingDto = makeUserDto("ivan@mail.ru", "Ivan");
+        em.persist(UserDtoMapper.mapToUser(existingDto));
+        em.flush();
+
+        UserDto newUserDto = makeUserDto("ivan@mail.ru", "Petr");
+
+        // when & then
+        assertThrows(ConflictException.class, () -> service.createUser(newUserDto));
+    }
+
+    @Test
+    @DisplayName("Сервис(интеграционный тест) - обновление пользователя ошибка: пользователя не существует")
+    void updateUser_ShouldThrowNotFound() {
+        // given
+        UserDto updateDto = makeUserDto("new@mail.ru", "NewName");
+
+        // when & then
+        assertThrows(NotFoundException.class, () -> service.updateUser(999L, updateDto));
+    }
+
+    @Test
+    @DisplayName("Сервис(интеграционный тест) - обновление пользователя ошибка: емаил занят")
+    void updateUser_ShouldThrowConflictOnEmail() {
+        // given
+        User user1 = User.builder().name("Ivan").email("ivan@mail.ru").build();
+        User user2 = User.builder().name("Petr").email("petr@mail.ru").build();
+        em.persist(user1);
+        em.persist(user2);
+        em.flush();
+
+        UserDto updateDto = makeUserDto("petr@mail.ru", "IvanUpdated");
+
+        // when & then
+        assertThrows(ConflictException.class, () -> service.updateUser(user1.getId(), updateDto));
+    }
+
+    @Test
+    @DisplayName("updateUser: частичное обновление (поля name и email в DTO равны null)")
+    void updateUser_ShouldKeepOldDataWhenFieldsAreNull() {
+        // given
+        User user = User.builder().name("OldName").email("old@mail.ru").build();
+        em.persist(user);
+        em.flush();
+
+        UserDto updateDto = UserDto.builder().name(null).email(null).build();
+
+        // when
+        UserDto result = service.updateUser(user.getId(), updateDto);
+
+        // then
+        assertThat(result, allOf(
+                hasProperty("name", equalTo("OldName")),
+                hasProperty("email", equalTo("old@mail.ru"))
+        ));
+    }
+
 
 
     private UserDto makeUserDto(String email, String name) {

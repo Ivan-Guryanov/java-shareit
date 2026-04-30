@@ -21,10 +21,6 @@ public class BookingController {
     public ResponseEntity<Object> createBooking(@RequestHeader("X-Sharer-User-Id") long userId,
                                                 @RequestBody @Valid BookingDto bookingDto) {
         log.info("Gateway: Создание бронирования для пользователя {} вещи {}", userId, bookingDto.getItemId());
-        // Дополнительная проверка дат, если её нет в аннотациях DTO
-        if (bookingDto.getStart().isAfter(bookingDto.getEnd()) || bookingDto.getStart().equals(bookingDto.getEnd())) {
-            throw new IllegalArgumentException("Время начала не может быть позже или равно времени окончания");
-        }
         return bookingClient.createBooking(userId, bookingDto);
     }
 

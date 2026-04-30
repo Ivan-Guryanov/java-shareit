@@ -36,6 +36,8 @@ public class BookingServiceImpl implements BookingService {
         userService.getUsetById(userId); //проверка существования пользователя
 
         LocalDateTime now = LocalDateTime.now();
+        System.out.println(bookingDto);
+        System.out.println(bookingDto.getStart());
 
         if (bookingDto.getStart() == null) {
             throw new ValidationException("Не указана дата начала бронирования");
