@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                                             @RequestBody ItemDto itemDto) {
+                                             @RequestBody @Valid ItemDto itemDto) {
         log.info("Gateway: Создание вещи для пользователя id {}", userId);
         return itemClient.createItem(userId, itemDto);
     }
@@ -25,7 +27,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
                                              @PathVariable long itemId,
-                                             @RequestBody ItemDto itemDto) {
+                                             @RequestBody @Valid ItemDto itemDto) {
         log.info("Gateway: Обновление вещи id {} пользователем id {}", itemId, userId);
         return itemClient.updateItem(userId, itemId, itemDto);
     }
@@ -45,7 +47,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> itemSearch(@RequestHeader("X-Sharer-User-Id") long userId,
-                                             @RequestParam String text) {
+                                             @RequestParam @NotBlank(message = "Текст поиска не может быть пустым")String text) {
         log.info("Gateway: Поиск вещей по запросу: {}", text);
         return itemClient.itemSearch(userId, text);
     }

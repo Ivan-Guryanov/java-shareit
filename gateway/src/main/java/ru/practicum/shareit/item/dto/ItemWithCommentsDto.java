@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,8 +14,13 @@ import java.util.Collection;
 @AllArgsConstructor
 public class ItemWithCommentsDto {
     private Long id;
+
+    @NotBlank(message = "Не введено название")
     private String name;
+
+    @NotBlank(message = "Не введено название")
     private String description;
+
     private Boolean available;
     private Long lastBooking;
     private Long nextBooking;

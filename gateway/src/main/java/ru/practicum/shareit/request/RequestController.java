@@ -43,7 +43,7 @@ public class RequestController {
 
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> findItemRequestById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                      @PathVariable long requestId) {
+                                                      @PathVariable @Positive long requestId) {
         log.info("Gateway: Получение запроса id {} пользователем {}", requestId, userId);
         return requestClient.findItemRequestById(userId, requestId);
     }
